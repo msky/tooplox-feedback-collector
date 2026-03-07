@@ -13,11 +13,14 @@ import tooplox.feedbackcollector.domain.failures.ShowFeedbackFailure;
 import tooplox.feedbackcollector.domain.failures.ShowInboxFailure;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure;
 import tooplox.feedbackcollector.domain.impl.InboxRepository;
+import tooplox.feedbackcollector.domain.impl.MessageRepository;
 import tooplox.feedbackcollector.domain.queries.ShowFeedbackQuery;
 import tooplox.feedbackcollector.domain.queries.ShowInboxQuery;
 import tooplox.feedbackcollector.stubs.InMemoryInboxRepository;
+import tooplox.feedbackcollector.stubs.InMemoryMessageRepository;
 import tooplox.feedbackcollector.utils.CreateInboxCommandBuilder;
 import tooplox.feedbackcollector.utils.TestUtils;
+import tooplox.shared.domain.Success;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -31,10 +34,12 @@ import static org.mockito.Mockito.when;
 
 abstract class BaseFeedbackCollectorTest {
     static final int MAX_OWNER_USER_NAME_LENGTH = 255;
+    static final int MAX_FEEDBACK_CONTENT_LENGTH = 50;
 
     FeedbackCollectorFacade feedbackCollectorFacade;
     Clock clock = mock(Clock.class);
     InboxRepository inboxRepository = new InMemoryInboxRepository();
+    MessageRepository messageRepository = new InMemoryMessageRepository();
 
     @BeforeEach
     public void setUp() {
@@ -46,7 +51,7 @@ abstract class BaseFeedbackCollectorTest {
         return feedbackCollectorFacade.createInbox(command);
     }
 
-    Either<SubmitFeedbackFailure, Void> submitFeedback(SubmitFeedbackCommand command) {
+    Either<SubmitFeedbackFailure, Success> submitFeedback(SubmitFeedbackCommand command) {
         return feedbackCollectorFacade.submitFeedback(command);
     }
 
@@ -60,11 +65,20 @@ abstract class BaseFeedbackCollectorTest {
 
     private FeedbackCollectorFacade configureModule() {
         FeedbackCollectorFacadeConfiguration configuration = new FeedbackCollectorFacadeConfiguration();
-        return configuration.feedbackCollectorFacade(MAX_OWNER_USER_NAME_LENGTH, clock, inboxRepository);
+        return configuration.feedbackCollectorFacade(
+                MAX_OWNER_USER_NAME_LENGTH,
+                MAX_FEEDBACK_CONTENT_LENGTH,
+                clock,
+                inboxRepository,
+                messageRepository);
     }
 
     void failedBecauseOf(Either<?, ?> result, Class<?> expectedFailureClass) {
         assertThat(result).isLeft().hasLeftValueSatisfying(failure -> assertTrue(expectedFailureClass.isInstance(failure)));
+    }
+
+    void succeeded(Either<?, Success> result) {
+        assertThat(result).isRight();
     }
 
     void timeIs(LocalDateTime time) {

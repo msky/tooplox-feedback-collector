@@ -33,7 +33,7 @@ public class NewInboxValidator {
     }
 
     private boolean expirationDateIsInPastOrMissing(CreateInboxCommand command) {
-        return command.expiringOn() == null || command.expiringOn().isBefore(LocalDateTime.now(clock));
+        return command.expirationDate() == null || command.expirationDate().isBefore(LocalDateTime.now(clock));
     }
 
     private boolean ownerUserNameIsTooLong(CreateInboxCommand command) {

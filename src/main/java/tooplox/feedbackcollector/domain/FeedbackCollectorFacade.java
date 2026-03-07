@@ -1,6 +1,7 @@
 package tooplox.feedbackcollector.domain;
 
 import io.vavr.control.Either;
+import io.vavr.control.Option;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import tooplox.feedbackcollector.domain.commands.CreateInboxCommand;
@@ -12,18 +13,25 @@ import tooplox.feedbackcollector.domain.failures.CreateInboxFailure;
 import tooplox.feedbackcollector.domain.failures.ShowFeedbackFailure;
 import tooplox.feedbackcollector.domain.failures.ShowInboxFailure;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure;
-import tooplox.feedbackcollector.domain.impl.InboxFactory;
-import tooplox.feedbackcollector.domain.impl.InboxRepository;
-import tooplox.feedbackcollector.domain.impl.NewInboxValidator;
+import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.InboxNotFound;
+import tooplox.feedbackcollector.domain.impl.*;
 import tooplox.feedbackcollector.domain.queries.ShowFeedbackQuery;
 import tooplox.feedbackcollector.domain.queries.ShowInboxQuery;
+import tooplox.shared.domain.InboxId;
+import tooplox.shared.domain.Success;
+
+import static tooplox.shared.domain.Success.SUCCESS;
 
 @RequiredArgsConstructor
 @Slf4j
+//TODO Add not null assertions to method args
 public class FeedbackCollectorFacade {
     private final NewInboxValidator newInboxValidator;
     private final InboxFactory inboxFactory;
     private final InboxRepository inboxRepository;
+    private final MessageValidator messageValidator;
+    private final MessageFactory messageFactory;
+    private final MessageRepository messageRepository;
 
     public Either<CreateInboxFailure, CreateInboxResultDto> createInbox(CreateInboxCommand command) {
         log.info("Creating new inbox [ command = {} ]", command);
@@ -35,8 +43,15 @@ public class FeedbackCollectorFacade {
                 .peek(result -> log.info("Inbox created successfully [ id = {} ]", result.inboxId().value()));
     }
 
-    public Either<SubmitFeedbackFailure, Void> submitFeedback(SubmitFeedbackCommand command) {
-        return null;
+    public Either<SubmitFeedbackFailure, Success> submitFeedback(SubmitFeedbackCommand command) {
+        log.info("Submitting feedback. [ inboxId = {} submitter = {} ]", command.inboxId(), command.submitterUserName());
+        return findInboxBy(command.inboxId())
+                .flatMap(inbox -> messageValidator.checkIfMessageCanBeSubmittedTo(inbox, command))
+                .map(messageFactory::createFrom)
+                .map(messageRepository::save)
+                .map(_ -> SUCCESS)
+                .peekLeft(SubmitFeedbackFailure::log)
+                .peek(_ -> log.info("Feedback submitted successfully [ inboxId = {} ]", command.inboxId()));
     }
 
     public Either<ShowInboxFailure, ShowInboxResultDto> showInbox(ShowInboxQuery query) {
@@ -45,5 +60,11 @@ public class FeedbackCollectorFacade {
 
     public Either<ShowFeedbackFailure, ShowFeedbackResultDto> showFeedback(ShowFeedbackQuery query) {
         return null;
+    }
+
+    private Either<SubmitFeedbackFailure, Inbox> findInboxBy(InboxId inboxId) {
+        return Option.of(inboxId)
+                .flatMap(id -> Option.ofOptional(inboxRepository.findBy(id)))
+                .toEither(InboxNotFound::new);
     }
 }
