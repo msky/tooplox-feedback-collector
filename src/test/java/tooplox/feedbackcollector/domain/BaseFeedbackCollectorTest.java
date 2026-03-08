@@ -20,7 +20,10 @@ import tooplox.feedbackcollector.stubs.InMemoryInboxRepository;
 import tooplox.feedbackcollector.stubs.InMemoryMessageRepository;
 import tooplox.feedbackcollector.utils.CreateInboxCommandBuilder;
 import tooplox.feedbackcollector.utils.TestUtils;
+import tooplox.shared.domain.AuthenticatedUser;
+import tooplox.shared.domain.AuthenticatedUserProvider;
 import tooplox.shared.domain.Success;
+import tooplox.shared.domain.UserName;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -33,13 +36,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 abstract class BaseFeedbackCollectorTest {
-    static final int MAX_OWNER_USER_NAME_LENGTH = 255;
     static final int MAX_FEEDBACK_CONTENT_LENGTH = 50;
 
     FeedbackCollectorFacade feedbackCollectorFacade;
     Clock clock = mock(Clock.class);
     InboxRepository inboxRepository = new InMemoryInboxRepository();
     MessageRepository messageRepository = new InMemoryMessageRepository();
+    AuthenticatedUserProvider authenticatedUserProvider = mock(AuthenticatedUserProvider.class);
 
     @BeforeEach
     public void setUp() {
@@ -66,7 +69,7 @@ abstract class BaseFeedbackCollectorTest {
     private FeedbackCollectorFacade configureModule() {
         FeedbackCollectorFacadeConfiguration configuration = new FeedbackCollectorFacadeConfiguration();
         return configuration.feedbackCollectorFacade(
-                MAX_OWNER_USER_NAME_LENGTH,
+                authenticatedUserProvider,
                 MAX_FEEDBACK_CONTENT_LENGTH,
                 clock,
                 inboxRepository,
@@ -92,5 +95,15 @@ abstract class BaseFeedbackCollectorTest {
 
     LocalDateTime randomFutureDate() {
         return TestUtils.randomFutureDate(clock);
+    }
+
+    void userIsAuthenticated(String userName) {
+        when(authenticatedUserProvider.authenticatedUser()).thenReturn(
+                new AuthenticatedUser(new UserName(userName))
+        );
+    }
+
+    void thereIsNoAuthenticatedUser() {
+        when(authenticatedUserProvider.authenticatedUser()).thenReturn(null);
     }
 }

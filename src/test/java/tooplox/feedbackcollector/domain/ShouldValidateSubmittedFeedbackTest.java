@@ -13,7 +13,10 @@ public class ShouldValidateSubmittedFeedbackTest extends BaseFeedbackCollectorTe
     @Test
     void shouldAllowToSubmitFeedback() {
         // given
+        userIsAuthenticated("Bob");
         val inboxId = createInbox(sampleCreateInboxCommand().build()).get().inboxId();
+
+        userIsAuthenticated("Alice");
 
         // when
         val submitFeedbackResult = submitFeedback(sampleSubmitFeedbackCommand().toInbox(inboxId).build());
@@ -25,10 +28,13 @@ public class ShouldValidateSubmittedFeedbackTest extends BaseFeedbackCollectorTe
     @Test
     void shouldFailWhenSubmittingFeedbackToExpiredInbox() {
         // given
+        userIsAuthenticated("Bob");
         val now = someRandomDateTime();
         val inboxExpirationTime = now.plusDays(5);
         timeIs(now);
         val inboxId = createInbox(sampleCreateInboxCommand().expiringOn(inboxExpirationTime).build()).get().inboxId();
+
+        userIsAuthenticated("Alice");
 
         // when
         timeIs(inboxExpirationTime.plusSeconds(1));
@@ -41,7 +47,10 @@ public class ShouldValidateSubmittedFeedbackTest extends BaseFeedbackCollectorTe
     @Test
     void shouldFailWhenSubmittingFeedbackForNonExistingInbox() {
         // given
+        userIsAuthenticated("Bob");
         InboxId nonExistingInbox = InboxId.generate();
+
+        userIsAuthenticated("Alice");
 
         // when
         val result = submitFeedback(sampleSubmitFeedbackCommand().toInbox(nonExistingInbox).build());
@@ -53,6 +62,7 @@ public class ShouldValidateSubmittedFeedbackTest extends BaseFeedbackCollectorTe
     @Test
     void shouldFailWhenSubmittingFeedbackWithoutInbox() {
         // when
+        userIsAuthenticated("Alice");
         val result = submitFeedback(sampleSubmitFeedbackCommand().withoutInbox().build());
 
         // then
@@ -62,7 +72,10 @@ public class ShouldValidateSubmittedFeedbackTest extends BaseFeedbackCollectorTe
     @Test
     void shouldFailWhenSubmittingFeedbackWithoutBody() {
         // given
+        userIsAuthenticated("Bob");
         val inboxId = createInbox(sampleCreateInboxCommand().build()).get().inboxId();
+
+        userIsAuthenticated("Alice");
 
         // when
         val submitWithoutContentResult = submitFeedback(sampleSubmitFeedbackCommand()
@@ -95,14 +108,16 @@ public class ShouldValidateSubmittedFeedbackTest extends BaseFeedbackCollectorTe
     @Test
     void shouldFailWhenSubmittingAnonymousFeedbackToInboxThatDoesntAllowIt() {
         // given
+        userIsAuthenticated("Bob");
         val inboxId = createInbox(sampleCreateInboxCommand()
                 .allowingAnonymousFeedback(false)
                 .build()).get().inboxId();
 
+        thereIsNoAuthenticatedUser();
+
         // when
         val result = submitFeedback(sampleSubmitFeedbackCommand()
                 .toInbox(inboxId)
-                .anonymous()
                 .build());
 
         // then
@@ -112,7 +127,10 @@ public class ShouldValidateSubmittedFeedbackTest extends BaseFeedbackCollectorTe
     @Test
     void shouldFailWhenSubmittingFeedbackWithTooLongBody() {
         // given
+        userIsAuthenticated("Bob");
         val inboxId = createInbox(sampleCreateInboxCommand().build()).get().inboxId();
+
+        userIsAuthenticated("Alice");
 
         // when
         val result = submitFeedback(sampleSubmitFeedbackCommand()
@@ -127,12 +145,12 @@ public class ShouldValidateSubmittedFeedbackTest extends BaseFeedbackCollectorTe
     @Test
     void shouldFailWhenSubmittingFeedbackToOwnInbox() {
         // given
-        val inboxId = createInbox(sampleCreateInboxCommand().ownedBy("Bob").build()).get().inboxId();
+        userIsAuthenticated("Bob");
+        val inboxId = createInbox(sampleCreateInboxCommand().build()).get().inboxId();
 
         // when
         val result = submitFeedback(sampleSubmitFeedbackCommand().
                 toInbox(inboxId)
-                .submittedBy("Bob")
                 .build());
 
         // then

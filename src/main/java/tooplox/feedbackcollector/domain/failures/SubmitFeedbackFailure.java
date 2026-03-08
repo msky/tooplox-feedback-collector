@@ -44,7 +44,7 @@ public abstract sealed class SubmitFeedbackFailure {
     public static final class SubmittingFeedbackToYourself extends SubmitFeedbackFailure {
         @Override
         public void log() {
-            log.warn("Failed to submit feedback because the submitter is the owner of the inbox");
+            log.warn("Failed to submit feedback because the author of the message is the owner of the inbox");
         }
     }
 }

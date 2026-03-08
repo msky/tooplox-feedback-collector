@@ -19,11 +19,4 @@ public abstract sealed class CreateInboxFailure {
             log.error("Failed to create inbox: missing owner - owner must be provided");
         }
     }
-
-    public static final class TooLongOwnerUserName extends CreateInboxFailure {
-        @Override
-        public void log() {
-            log.error("Failed to create inbox: too long owner username");
-        }
-    }
 }

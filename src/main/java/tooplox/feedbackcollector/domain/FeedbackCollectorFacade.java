@@ -17,8 +17,9 @@ import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.InboxNotF
 import tooplox.feedbackcollector.domain.impl.*;
 import tooplox.feedbackcollector.domain.queries.ShowFeedbackQuery;
 import tooplox.feedbackcollector.domain.queries.ShowInboxQuery;
-import tooplox.shared.domain.InboxId;
-import tooplox.shared.domain.Success;
+import tooplox.shared.domain.*;
+
+import java.util.Optional;
 
 import static tooplox.shared.domain.Success.SUCCESS;
 
@@ -32,6 +33,7 @@ public class FeedbackCollectorFacade {
     private final MessageValidator messageValidator;
     private final MessageFactory messageFactory;
     private final MessageRepository messageRepository;
+    private final AuthenticatedUserProvider authenticatedUserProvider;
 
     public Either<CreateInboxFailure, CreateInboxResultDto> createInbox(CreateInboxCommand command) {
         log.info("Creating new inbox [ command = {} ]", command);
@@ -44,7 +46,7 @@ public class FeedbackCollectorFacade {
     }
 
     public Either<SubmitFeedbackFailure, Success> submitFeedback(SubmitFeedbackCommand command) {
-        log.info("Submitting feedback. [ inboxId = {} submitter = {} ]", command.inboxId(), command.submitterUserName());
+        log.info("Submitting feedback. [ inboxId = {} author = {}]", command.inboxId(), currentUserName().orElse("anonymous"));
         return findInboxBy(command.inboxId())
                 .flatMap(inbox -> messageValidator.checkIfMessageCanBeSubmittedTo(inbox, command))
                 .map(messageFactory::createFrom)
@@ -60,6 +62,12 @@ public class FeedbackCollectorFacade {
 
     public Either<ShowFeedbackFailure, ShowFeedbackResultDto> showFeedback(ShowFeedbackQuery query) {
         return null;
+    }
+
+    private Optional<String> currentUserName() {
+        return Optional.ofNullable(authenticatedUserProvider.authenticatedUser())
+                .map(AuthenticatedUser::userName)
+                .map(UserName::value);
     }
 
     private Either<SubmitFeedbackFailure, Inbox> findInboxBy(InboxId inboxId) {

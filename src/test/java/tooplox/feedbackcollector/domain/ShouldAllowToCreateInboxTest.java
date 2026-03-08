@@ -8,7 +8,6 @@ import tooplox.feedbackcollector.domain.dto.CreateInboxResultDto;
 import tooplox.feedbackcollector.domain.failures.CreateInboxFailure;
 import tooplox.feedbackcollector.domain.failures.CreateInboxFailure.IncorrectExpirationDate;
 import tooplox.feedbackcollector.domain.failures.CreateInboxFailure.MissingOwner;
-import tooplox.feedbackcollector.domain.failures.CreateInboxFailure.TooLongOwnerUserName;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,8 +20,8 @@ public class ShouldAllowToCreateInboxTest extends BaseFeedbackCollectorTest {
     @Test
     void shouldAllowToCreateInbox() {
         // given
+        userIsAuthenticated("Bob");
         val createInboxCommand = sampleCreateInboxCommand()
-                .ownedBy("Bob")
                 .expiringOn(randomFutureDate())
                 .allowingAnonymousFeedback(true)
                 .build();
@@ -38,6 +37,8 @@ public class ShouldAllowToCreateInboxTest extends BaseFeedbackCollectorTest {
     @Test
     void shouldAllowToCreateMultipleInboxes() {
         // given
+        userIsAuthenticated("Bob");
+
         val commands = multipleCreateInboxCommandFromSameOwner();
 
         // when
@@ -50,6 +51,8 @@ public class ShouldAllowToCreateInboxTest extends BaseFeedbackCollectorTest {
     @Test
     void shouldFailWhenCreatingInboxWithExpirationDateInThePast() {
         // given
+        userIsAuthenticated("Bob");
+
         val command = sampleCreateInboxCommand()
                 .expiringOn(someDateInPast())
                 .build();
@@ -64,6 +67,7 @@ public class ShouldAllowToCreateInboxTest extends BaseFeedbackCollectorTest {
     @Test
     void shouldFailWhenCreatingInboxWithoutExpirationDate() {
         // given
+        userIsAuthenticated("Bob");
         val command = sampleCreateInboxCommand()
                 .withoutExpirationDate()
                 .build();
@@ -79,39 +83,15 @@ public class ShouldAllowToCreateInboxTest extends BaseFeedbackCollectorTest {
     void shouldFailWhenCreatingInboxWithoutOwner() {
         // when
         val resultWithoutOwner = createInbox(sampleCreateInboxCommand()
-                .withoutOwner()
                 .build());
 
         // then
         failedBecauseOf(resultWithoutOwner, MissingOwner.class);
-
-        // when
-        val resultWithEmptyOwner = createInbox(sampleCreateInboxCommand()
-                .ownedBy("")
-                .build());
-
-        // then
-        failedBecauseOf(resultWithEmptyOwner, MissingOwner.class);
-    }
-
-    @Test
-    void shouldFailWhenCreatingInboxWithTooLongOwnerName() {
-        // given
-        val tooLongOwnerName = "a".repeat(MAX_OWNER_USER_NAME_LENGTH + 1);
-
-        // when
-        val result = createInbox(sampleCreateInboxCommand()
-                .ownedBy(tooLongOwnerName)
-                .build());
-
-        // then
-        failedBecauseOf(result, TooLongOwnerUserName.class);
-
     }
 
     private List<CreateInboxCommand> multipleCreateInboxCommandFromSameOwner() {
         return IntStream.range(0, 5).mapToObj(i -> sampleCreateInboxCommand()
-                .ownedBy("Bob").build()).toList();
+                .build()).toList();
     }
 
     private void inboxIdWasGenerated(Either<CreateInboxFailure, CreateInboxResultDto> result) {

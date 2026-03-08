@@ -6,6 +6,8 @@ import tooplox.feedbackcollector.domain.commands.SubmitFeedbackCommand;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.ContentTooLarge;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.NoContent;
+import tooplox.shared.domain.AuthenticatedUser;
+import tooplox.shared.domain.AuthenticatedUserProvider;
 
 import java.time.Clock;
 
@@ -13,6 +15,7 @@ import java.time.Clock;
 public class MessageValidator {
     private final int maxFeedbackContentLength;
     private final Clock clock;
+    private final AuthenticatedUserProvider authenticatedUserProvider;
 
     public Either<SubmitFeedbackFailure, SubmitFeedbackCommand> checkIfMessageCanBeSubmittedTo(Inbox inbox,
                                                                                                SubmitFeedbackCommand command) {
@@ -21,7 +24,11 @@ public class MessageValidator {
         } else if (command.content().length() > maxFeedbackContentLength) {
             return Either.left(new ContentTooLarge());
         } else {
-            return inbox.acceptsMessage(command, clock).map(_ -> command);
+            return inbox.acceptsMessage(messageAuthor(), clock).map(_ -> command);
         }
+    }
+
+    private AuthenticatedUser messageAuthor() {
+        return authenticatedUserProvider.authenticatedUser();
     }
 }

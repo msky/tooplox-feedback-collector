@@ -6,10 +6,9 @@ import tooplox.shared.domain.InboxId;
 public class SubmitFeedbackCommandBuilder {
     InboxId inboxId = null;
     String content = "sample content";
-    String submitterUserName = null;
 
     public SubmitFeedbackCommand build() {
-        return new SubmitFeedbackCommand(inboxId, content, submitterUserName);
+        return new SubmitFeedbackCommand(inboxId, content);
     }
 
     public static SubmitFeedbackCommandBuilder sampleSubmitFeedbackCommand() {
@@ -23,16 +22,6 @@ public class SubmitFeedbackCommandBuilder {
 
     public SubmitFeedbackCommandBuilder withContent(String content) {
         this.content = content;
-        return this;
-    }
-
-    public SubmitFeedbackCommandBuilder submittedBy(String submitterUserName) {
-        this.submitterUserName = submitterUserName;
-        return this;
-    }
-
-    public SubmitFeedbackCommandBuilder anonymous() {
-        this.submitterUserName = null;
         return this;
     }
 
