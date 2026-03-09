@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import tooplox.feedbackcollector.domain.commands.SubmitFeedbackCommand;
 import tooplox.feedbackcollector.domain.impl.Message.Author;
-import tooplox.shared.domain.AuthenticatedUserProvider;
+import tooplox.shared.authentication.AuthenticatedUserProvider;
 import tooplox.shared.domain.MessageId;
 
 import java.time.Clock;

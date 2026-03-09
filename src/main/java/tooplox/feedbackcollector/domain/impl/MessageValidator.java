@@ -6,8 +6,8 @@ import tooplox.feedbackcollector.domain.commands.SubmitFeedbackCommand;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.ContentTooLarge;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.NoContent;
-import tooplox.shared.domain.AuthenticatedUser;
-import tooplox.shared.domain.AuthenticatedUserProvider;
+import tooplox.shared.authentication.AuthenticatedUser;
+import tooplox.shared.authentication.AuthenticatedUserProvider;
 
 import java.time.Clock;
 

@@ -16,6 +16,8 @@ import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure;
 import tooplox.feedbackcollector.domain.impl.*;
 import tooplox.feedbackcollector.domain.queries.ShowFeedbackQuery;
 import tooplox.feedbackcollector.domain.queries.ShowInboxQuery;
+import tooplox.shared.authentication.AuthenticatedUser;
+import tooplox.shared.authentication.AuthenticatedUserProvider;
 import tooplox.shared.domain.*;
 
 import java.util.Optional;

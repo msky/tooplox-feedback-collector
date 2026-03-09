@@ -1,12 +1,16 @@
 package tooplox.feedbackcollector.domain;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import tooplox.feedbackcollector.domain.impl.*;
-import tooplox.shared.domain.AuthenticatedUserProvider;
+import tooplox.shared.authentication.AuthenticatedUserProvider;
 
 import java.time.Clock;
 
+@Configuration
 public class FeedbackCollectorFacadeConfiguration {
 
+    @Bean
     public FeedbackCollectorFacade feedbackCollectorFacade(
             AuthenticatedUserProvider authenticatedUserProvider,
             int maxFeedbackContentLength,
@@ -23,5 +27,10 @@ public class FeedbackCollectorFacadeConfiguration {
                 messageRepository,
                 authenticatedUserProvider
         );
+    }
+
+    @Bean
+    public int maxFeedbackContentLength() {
+        return 50;
     }
 }

@@ -8,6 +8,7 @@ import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.AnonymousFeedbackNotAllowed;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.InboxExpired;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.SubmittingFeedbackToYourself;
+import tooplox.shared.authentication.AuthenticatedUser;
 import tooplox.shared.domain.*;
 
 import java.time.Clock;

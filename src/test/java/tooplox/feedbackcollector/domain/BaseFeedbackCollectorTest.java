@@ -16,10 +16,12 @@ import tooplox.feedbackcollector.domain.impl.InboxRepository;
 import tooplox.feedbackcollector.domain.impl.MessageRepository;
 import tooplox.feedbackcollector.domain.queries.ShowFeedbackQuery;
 import tooplox.feedbackcollector.domain.queries.ShowInboxQuery;
-import tooplox.feedbackcollector.stubs.InMemoryInboxRepository;
-import tooplox.feedbackcollector.stubs.InMemoryMessageRepository;
+import tooplox.feedbackcollector.infra.db.embedded.InMemoryInboxRepository;
+import tooplox.feedbackcollector.infra.db.embedded.InMemoryMessageRepository;
 import tooplox.feedbackcollector.utils.CreateInboxCommandBuilder;
 import tooplox.feedbackcollector.utils.TestUtils;
+import tooplox.shared.authentication.AuthenticatedUser;
+import tooplox.shared.authentication.AuthenticatedUserProvider;
 import tooplox.shared.domain.*;
 
 import java.time.Clock;

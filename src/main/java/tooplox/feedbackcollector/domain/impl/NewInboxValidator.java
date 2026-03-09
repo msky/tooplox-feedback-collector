@@ -6,7 +6,7 @@ import tooplox.feedbackcollector.domain.commands.CreateInboxCommand;
 import tooplox.feedbackcollector.domain.failures.CreateInboxFailure;
 import tooplox.feedbackcollector.domain.failures.CreateInboxFailure.IncorrectExpirationDate;
 import tooplox.feedbackcollector.domain.failures.CreateInboxFailure.MissingOwner;
-import tooplox.shared.domain.AuthenticatedUserProvider;
+import tooplox.shared.authentication.AuthenticatedUserProvider;
 
 import java.time.Clock;
 import java.time.LocalDateTime;

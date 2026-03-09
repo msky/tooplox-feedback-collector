@@ -1,5 +1,6 @@
-package tooplox.feedbackcollector.stubs;
+package tooplox.feedbackcollector.infra.db.embedded;
 
+import org.springframework.stereotype.Repository;
 import tooplox.feedbackcollector.domain.impl.Message;
 import tooplox.feedbackcollector.domain.impl.MessageRepository;
 import tooplox.shared.domain.InboxId;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Repository
 public class InMemoryMessageRepository implements MessageRepository {
     private final Map<MessageId, Message> messages = new HashMap<>();
 

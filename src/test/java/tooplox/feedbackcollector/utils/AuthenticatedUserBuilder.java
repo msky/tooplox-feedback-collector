@@ -1,6 +1,6 @@
 package tooplox.feedbackcollector.utils;
 
-import tooplox.shared.domain.AuthenticatedUser;
+import tooplox.shared.authentication.AuthenticatedUser;
 import tooplox.shared.domain.SignatureHash;
 import tooplox.shared.domain.UserName;
 

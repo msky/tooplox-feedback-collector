@@ -3,8 +3,8 @@ package tooplox.feedbackcollector.domain.impl;
 import lombok.RequiredArgsConstructor;
 import tooplox.feedbackcollector.domain.commands.CreateInboxCommand;
 import tooplox.feedbackcollector.domain.impl.Inbox.Owner;
-import tooplox.shared.domain.AuthenticatedUser;
-import tooplox.shared.domain.AuthenticatedUserProvider;
+import tooplox.shared.authentication.AuthenticatedUser;
+import tooplox.shared.authentication.AuthenticatedUserProvider;
 import tooplox.shared.domain.InboxId;
 import tooplox.shared.domain.UserSignature;
 

@@ -1,4 +1,4 @@
-package tooplox.shared.domain;
+package tooplox.shared.authentication;
 
 public interface AuthenticatedUserProvider {
 
