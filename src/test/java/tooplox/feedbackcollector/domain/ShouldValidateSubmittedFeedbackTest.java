@@ -26,6 +26,22 @@ public class ShouldValidateSubmittedFeedbackTest extends BaseFeedbackCollectorTe
     }
 
     @Test
+    void shouldAllowToSubmitAnonymousFeedback() {
+        // given
+        userIsAuthenticated("Bob");
+        val inboxId = createInbox(sampleCreateInboxCommand()
+                .allowingAnonymousFeedback(true)
+                .build()).get().inboxId();
+
+        thereIsNoAuthenticatedUser();
+        // when
+        val submitFeedbackResult = submitFeedback(sampleSubmitFeedbackCommand().toInbox(inboxId).build());
+
+        // then
+        succeeded(submitFeedbackResult);
+    }
+
+    @Test
     void shouldFailWhenSubmittingFeedbackToExpiredInbox() {
         // given
         userIsAuthenticated("Bob");

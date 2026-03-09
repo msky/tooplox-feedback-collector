@@ -13,7 +13,6 @@ import tooplox.feedbackcollector.domain.failures.CreateInboxFailure;
 import tooplox.feedbackcollector.domain.failures.ShowFeedbackFailure;
 import tooplox.feedbackcollector.domain.failures.ShowInboxFailure;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure;
-import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.InboxNotFound;
 import tooplox.feedbackcollector.domain.impl.*;
 import tooplox.feedbackcollector.domain.queries.ShowFeedbackQuery;
 import tooplox.feedbackcollector.domain.queries.ShowInboxQuery;
@@ -37,6 +36,7 @@ public class FeedbackCollectorFacade {
 
     public Either<CreateInboxFailure, CreateInboxResultDto> createInbox(CreateInboxCommand command) {
         log.info("Creating new inbox [ command = {} ]", command);
+
         return newInboxValidator.validate(command)
                 .map(inboxFactory::createFrom)
                 .map(inboxRepository::save)
@@ -46,8 +46,11 @@ public class FeedbackCollectorFacade {
     }
 
     public Either<SubmitFeedbackFailure, Success> submitFeedback(SubmitFeedbackCommand command) {
-        log.info("Submitting feedback. [ inboxId = {} author = {}]", command.inboxId(), currentUserName().orElse("anonymous"));
-        return findInboxBy(command.inboxId())
+        log.info("Submitting feedback. [ inboxId = {} author = {}]",
+                command.inboxId(),
+                currentUserName().orElse("anonymous"));
+
+        return findInboxBy(command.inboxId(), (SubmitFeedbackFailure) new SubmitFeedbackFailure.InboxNotFound())
                 .flatMap(inbox -> messageValidator.checkIfMessageCanBeSubmittedTo(inbox, command))
                 .map(messageFactory::createFrom)
                 .map(messageRepository::save)
@@ -56,23 +59,37 @@ public class FeedbackCollectorFacade {
                 .peek(_ -> log.info("Feedback submitted successfully [ inboxId = {} ]", command.inboxId()));
     }
 
+    private Optional<String> currentUserName() {
+        return Optional.ofNullable(currentUser()).map(AuthenticatedUser::userName).map(UserName::value);
+    }
+
     public Either<ShowInboxFailure, ShowInboxResultDto> showInbox(ShowInboxQuery query) {
         return null;
     }
 
     public Either<ShowFeedbackFailure, ShowFeedbackResultDto> showFeedback(ShowFeedbackQuery query) {
-        return null;
+        log.info("Showing feedback for inbox [ inboxId = {} ]", query.inboxId());
+
+        return findInboxBy(query.inboxId(), (ShowFeedbackFailure) new ShowFeedbackFailure.InboxNotFound())
+                .flatMap(inbox -> inbox.canBeReadBy(currentUser()))
+                .map(_ -> messageRepository.findBy(query.inboxId())
+                        .stream()
+                        .map(Message::toDto)
+                        .toList())
+                .map(ShowFeedbackResultDto::new)
+                .peekLeft(ShowFeedbackFailure::log)
+                .peek(result -> log.info("Feedback for inbox [ inboxId = {} ] retrieved successfully. [ messagesCount = {} ]",
+                        query.inboxId(), result.messages().size()));
+
     }
 
-    private Optional<String> currentUserName() {
-        return Optional.ofNullable(authenticatedUserProvider.authenticatedUser())
-                .map(AuthenticatedUser::userName)
-                .map(UserName::value);
+    private AuthenticatedUser currentUser() {
+        return authenticatedUserProvider.authenticatedUser();
     }
 
-    private Either<SubmitFeedbackFailure, Inbox> findInboxBy(InboxId inboxId) {
+    private <T> Either<T, Inbox> findInboxBy(InboxId inboxId, T failure) {
         return Option.of(inboxId)
                 .flatMap(id -> Option.ofOptional(inboxRepository.findBy(id)))
-                .toEither(InboxNotFound::new);
+                .toEither(() -> failure);
     }
 }

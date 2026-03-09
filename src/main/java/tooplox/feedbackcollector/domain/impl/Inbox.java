@@ -2,6 +2,8 @@ package tooplox.feedbackcollector.domain.impl;
 
 import io.vavr.control.Either;
 import jakarta.annotation.Nullable;
+import tooplox.feedbackcollector.domain.failures.ShowFeedbackFailure;
+import tooplox.feedbackcollector.domain.failures.ShowFeedbackFailure.NotAuthorizedToReadFromInbox;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.AnonymousFeedbackNotAllowed;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.InboxExpired;
@@ -37,7 +39,7 @@ public record Inbox(
     }
 
     private boolean isMessageSendByOwner(AuthenticatedUser messageAuthor) {
-        return owner.isSameAs(messageAuthor);
+        return messageAuthor != null && owner.isSameAs(messageAuthor);
     }
 
     private boolean isInboxExpired(Clock clock) {
@@ -48,9 +50,17 @@ public record Inbox(
         return author == null;
     }
 
+    public Either<ShowFeedbackFailure, Success> canBeReadBy(AuthenticatedUser authenticatedUser) {
+        if (owner.isSameAs(authenticatedUser)) {
+            return Either.right(SUCCESS);
+        } else {
+            return Either.left(new NotAuthorizedToReadFromInbox());
+        }
+    }
+
     record Owner(UserName userName) {
         public boolean isSameAs(AuthenticatedUser user) {
-            return userName.equals(user.userName());
+            return user != null && userName.equals(user.userName());
         }
     }
 }

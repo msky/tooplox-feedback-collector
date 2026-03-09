@@ -19,7 +19,7 @@ public class FeedbackCollectorFacadeConfiguration {
                 new InboxFactory(authenticatedUserProvider),
                 inboxRepository,
                 new MessageValidator(maxFeedbackContentLength, clock, authenticatedUserProvider),
-                new MessageFactory(),
+                new MessageFactory(clock, authenticatedUserProvider),
                 messageRepository,
                 authenticatedUserProvider
         );

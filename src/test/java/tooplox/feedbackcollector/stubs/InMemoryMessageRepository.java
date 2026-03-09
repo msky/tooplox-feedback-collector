@@ -2,9 +2,11 @@ package tooplox.feedbackcollector.stubs;
 
 import tooplox.feedbackcollector.domain.impl.Message;
 import tooplox.feedbackcollector.domain.impl.MessageRepository;
+import tooplox.shared.domain.InboxId;
 import tooplox.shared.domain.MessageId;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class InMemoryMessageRepository implements MessageRepository {
@@ -14,5 +16,12 @@ public class InMemoryMessageRepository implements MessageRepository {
     public Message save(Message message) {
         messages.put(message.id(), message);
         return message;
+    }
+
+    @Override
+    public List<Message> findBy(InboxId inboxId) {
+        return messages.values().stream()
+                .filter(m -> m.inboxId().equals(inboxId))
+                .toList();
     }
 }

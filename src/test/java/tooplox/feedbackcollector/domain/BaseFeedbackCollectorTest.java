@@ -20,10 +20,7 @@ import tooplox.feedbackcollector.stubs.InMemoryInboxRepository;
 import tooplox.feedbackcollector.stubs.InMemoryMessageRepository;
 import tooplox.feedbackcollector.utils.CreateInboxCommandBuilder;
 import tooplox.feedbackcollector.utils.TestUtils;
-import tooplox.shared.domain.AuthenticatedUser;
-import tooplox.shared.domain.AuthenticatedUserProvider;
-import tooplox.shared.domain.Success;
-import tooplox.shared.domain.UserName;
+import tooplox.shared.domain.*;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -62,8 +59,8 @@ abstract class BaseFeedbackCollectorTest {
         return feedbackCollectorFacade.showInbox(query);
     }
 
-    Either<ShowFeedbackFailure, ShowFeedbackResultDto> showFeedback(ShowFeedbackQuery query) {
-        return feedbackCollectorFacade.showFeedback(query);
+    Either<ShowFeedbackFailure, ShowFeedbackResultDto> showFeedback(InboxId inboxId) {
+        return feedbackCollectorFacade.showFeedback(new ShowFeedbackQuery(inboxId));
     }
 
     private FeedbackCollectorFacade configureModule() {
