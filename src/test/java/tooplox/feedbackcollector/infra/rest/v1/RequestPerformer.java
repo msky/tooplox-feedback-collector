@@ -27,12 +27,14 @@ public class RequestPerformer {
                         .content("""
                                 {
                                     "expirationDate": "%s",
-                                    "allowsAnonymousFeedback": %s
+                                    "allowsAnonymousFeedback": %s,
+                                    "topic": "%s"
                                 }
                                 """
                                 .formatted(
                                         command.expirationDate().format(ISO_LOCAL_DATE_TIME),
-                                        command.allowsAnonymousFeedback())
+                                        command.allowsAnonymousFeedback(),
+                                        command.topic())
                         ),
                 credentials));
     }

@@ -74,9 +74,9 @@ public class FeedbackController {
         return HttpStatus.BAD_REQUEST;
     }
 
-    public record CreateInboxRequest(LocalDateTime expirationDate, boolean allowsAnonymousFeedback) {
+    public record CreateInboxRequest(LocalDateTime expirationDate, boolean allowsAnonymousFeedback, String topic) {
         public CreateInboxCommand toCommand() {
-            return new CreateInboxCommand(expirationDate, allowsAnonymousFeedback);
+            return new CreateInboxCommand(expirationDate, allowsAnonymousFeedback, topic);
         }
     }
 

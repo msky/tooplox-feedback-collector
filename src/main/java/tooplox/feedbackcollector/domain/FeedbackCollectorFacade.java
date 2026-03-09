@@ -71,6 +71,7 @@ public class FeedbackCollectorFacade {
         return findInboxBy(query.inboxId(), (ShowInboxFailure) new ShowInboxFailure.InboxNotFound())
                 .map(inbox -> new ShowInboxResultDto(
                         inbox.id(),
+                        inbox.topic().value(),
                         inbox.ownerSignature().value(),
                         inbox.expiresOn()))
                 .peekLeft(ShowInboxFailure::log)

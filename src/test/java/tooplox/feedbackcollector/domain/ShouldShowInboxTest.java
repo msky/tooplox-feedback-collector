@@ -16,13 +16,17 @@ public class ShouldShowInboxTest extends BaseFeedbackCollectorTest {
         // given
         userIsAuthenticated(authenticatedUser().withSignature("Bob#hash").build());
         val inboxExpirationDate = randomFutureDate();
-        val inboxId = createInbox(sampleCreateInboxCommand().expiringOn(inboxExpirationDate).build()).get().inboxId();
+        val inboxId = createInbox(sampleCreateInboxCommand()
+                .expiringOn(inboxExpirationDate)
+                .withTopic("my topic")
+                .build()).get().inboxId();
 
         // when
         val result = showInbox(new ShowInboxQuery(inboxId)).get();
 
         // then
         assertThat(result.id()).isEqualTo(inboxId);
+        assertThat(result.topic()).isEqualTo("my topic");
         assertThat(result.expiringOn()).isEqualTo(inboxExpirationDate);
         assertThat(result.ownerSignature()).isEqualTo("Bob#hash");
     }
@@ -32,7 +36,10 @@ public class ShouldShowInboxTest extends BaseFeedbackCollectorTest {
         // given
         userIsAuthenticated(authenticatedUser().withSignature("Bob#hash").build());
         val expirationDate = randomFutureDate();
-        val inboxId = createInbox(sampleCreateInboxCommand().expiringOn(expirationDate).build()).get().inboxId();
+        val inboxId = createInbox(sampleCreateInboxCommand()
+                .expiringOn(expirationDate)
+                .withTopic("shared topic")
+                .build()).get().inboxId();
 
         userIsAuthenticated("Alice");
 
@@ -41,6 +48,7 @@ public class ShouldShowInboxTest extends BaseFeedbackCollectorTest {
 
         // then
         assertThat(result.id()).isEqualTo(inboxId);
+        assertThat(result.topic()).isEqualTo("shared topic");
         assertThat(result.expiringOn()).isEqualTo(expirationDate);
         assertThat(result.ownerSignature()).isEqualTo("Bob#hash");
     }

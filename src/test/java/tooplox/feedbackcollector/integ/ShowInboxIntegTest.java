@@ -21,6 +21,7 @@ class ShowInboxIntegTest extends BaseFeedbackCollectorIntegTest {
         val inboxId = deserialize(createInbox(sampleCreateInboxCommand()
                 .expiringOn(inboxExpirationDate)
                 .allowingAnonymousFeedback(true)
+                .withTopic("my topic")
                 .build())
                 .andReturn().getResponse().getContentAsString(), CreateInboxResultDto.class).inboxId();
 
@@ -30,6 +31,7 @@ class ShowInboxIntegTest extends BaseFeedbackCollectorIntegTest {
         // then
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(inboxId.value()))
+                .andExpect(jsonPath("$.topic").value("my topic"))
                 .andExpect(jsonPath("$.expiringOn").value(inboxExpirationDate.format(ISO_LOCAL_DATE_TIME)))
                 .andExpect(jsonPath("$.ownerSignature").value(startsWith("Bob" + SEPARATOR)));
     }

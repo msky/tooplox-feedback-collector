@@ -19,6 +19,7 @@ import static tooplox.shared.domain.Success.SUCCESS;
 
 public record Inbox(
         InboxId id,
+        Topic topic,
         LocalDateTime expiresOn,
         boolean allowsAnonymousMessages,
         Owner owner

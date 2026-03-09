@@ -11,9 +11,10 @@ public class CreateInboxCommandBuilder {
     Clock clock = Clock.systemUTC();
     LocalDateTime expiringOn = randomFutureDate(clock);
     boolean allowsAnonymousFeedback = true;
+    String topic = "sample topic";
 
     public CreateInboxCommand build() {
-        return new CreateInboxCommand(expiringOn, allowsAnonymousFeedback);
+        return new CreateInboxCommand(expiringOn, allowsAnonymousFeedback, topic);
     }
 
     public static CreateInboxCommandBuilder sampleCreateInboxCommand(Clock clock) {
@@ -38,6 +39,11 @@ public class CreateInboxCommandBuilder {
 
     public CreateInboxCommandBuilder withoutExpirationDate() {
         this.expiringOn = null;
+        return this;
+    }
+
+    public CreateInboxCommandBuilder withTopic(String topic) {
+        this.topic = topic;
         return this;
     }
 }

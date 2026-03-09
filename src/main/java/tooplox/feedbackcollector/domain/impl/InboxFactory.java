@@ -17,6 +17,7 @@ public class InboxFactory {
         AuthenticatedUser owner = authenticatedUserProvider.authenticatedUser();
         return new Inbox(
                 InboxId.generate(),
+                new Topic(command.topic()),
                 command.expirationDate(),
                 command.allowsAnonymousFeedback(),
                 new Owner(UserSignature.from(owner.userName(), owner.signatureHash()))

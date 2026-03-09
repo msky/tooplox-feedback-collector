@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 public record CreateInboxCommand(
         LocalDateTime expirationDate,
-        boolean allowsAnonymousFeedback
+        boolean allowsAnonymousFeedback,
+        String topic
 ) {
 }
