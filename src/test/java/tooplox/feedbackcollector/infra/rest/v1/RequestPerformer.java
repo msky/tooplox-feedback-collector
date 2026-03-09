@@ -7,9 +7,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import tooplox.feedbackcollector.domain.commands.CreateInboxCommand;
-import tooplox.feedbackcollector.domain.commands.SubmitFeedbackCommand;
-import tooplox.feedbackcollector.domain.queries.ShowFeedbackQuery;
-import tooplox.feedbackcollector.domain.queries.ShowInboxQuery;
+import tooplox.feedbackcollector.domain.commands.SendMessageCommand;
+import tooplox.feedbackcollector.domain.queries.ReadInboxQuery;
+import tooplox.feedbackcollector.domain.queries.ShowInboxInformationQuery;
 import tooplox.feedbackcollector.integ.Credentials;
 
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
@@ -27,24 +27,24 @@ public class RequestPerformer {
                         .content("""
                                 {
                                     "expirationDate": "%s",
-                                    "allowsAnonymousFeedback": %s,
+                                    "allowsAnonymousMessage": %s,
                                     "topic": "%s"
                                 }
                                 """
                                 .formatted(
                                         command.expirationDate().format(ISO_LOCAL_DATE_TIME),
-                                        command.allowsAnonymousFeedback(),
+                                        command.allowsAnonymousMessages(),
                                         command.topic())
                         ),
                 credentials));
     }
 
-    public ResultActions showInbox(ShowInboxQuery query, Credentials credentials) {
+    public ResultActions showInbox(ShowInboxInformationQuery query, Credentials credentials) {
         return perform(applyCredentials(get("/api/v1/inboxes")
                 .param("id", query.inboxId().value()), credentials));
     }
 
-    public ResultActions submitFeedback(SubmitFeedbackCommand command, Credentials credentials) {
+    public ResultActions sendMessage(SendMessageCommand command, Credentials credentials) {
         return perform(applyCredentials(post("/api/v1/inboxes/{inboxId}/messages", command.inboxId().value())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
@@ -55,7 +55,7 @@ public class RequestPerformer {
                         .formatted(command.content())), credentials));
     }
 
-    public ResultActions showFeedback(ShowFeedbackQuery query, Credentials credentials) {
+    public ResultActions showMessage(ReadInboxQuery query, Credentials credentials) {
         return perform(applyCredentials(get("/api/v1/inboxes/{inboxId}/messages", query.inboxId().value()), credentials));
     }
 

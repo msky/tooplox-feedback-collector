@@ -3,7 +3,7 @@ package tooplox.feedbackcollector.domain.impl;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import tooplox.feedbackcollector.domain.commands.SubmitFeedbackCommand;
+import tooplox.feedbackcollector.domain.commands.SendMessageCommand;
 import tooplox.feedbackcollector.domain.impl.Message.Author;
 import tooplox.shared.authentication.AuthenticatedUserProvider;
 import tooplox.shared.domain.MessageId;
@@ -16,7 +16,7 @@ public class MessageFactory {
     private final Clock clock;
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
-    public Message createFrom(SubmitFeedbackCommand command) {
+    public Message createFrom(SendMessageCommand command) {
         return new Message(
                 MessageId.generate(),
                 command.inboxId(),

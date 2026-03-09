@@ -2,7 +2,7 @@ package tooplox.feedbackcollector.domain.commands;
 
 import tooplox.shared.domain.InboxId;
 
-public record SubmitFeedbackCommand(
+public record SendMessageCommand(
         InboxId inboxId,
         String content
 ) {

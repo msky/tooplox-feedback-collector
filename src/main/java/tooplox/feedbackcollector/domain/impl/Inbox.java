@@ -2,14 +2,16 @@ package tooplox.feedbackcollector.domain.impl;
 
 import io.vavr.control.Either;
 import jakarta.annotation.Nullable;
-import tooplox.feedbackcollector.domain.failures.ShowFeedbackFailure;
-import tooplox.feedbackcollector.domain.failures.ShowFeedbackFailure.NotAuthorizedToReadFromInbox;
-import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure;
-import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.AnonymousFeedbackNotAllowed;
-import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.InboxExpired;
-import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.SubmittingFeedbackToYourself;
+import tooplox.feedbackcollector.domain.failures.ReadInboxFailure;
+import tooplox.feedbackcollector.domain.failures.ReadInboxFailure.NotAuthorizedToReadFromInbox;
+import tooplox.feedbackcollector.domain.failures.SendMessageFailure;
+import tooplox.feedbackcollector.domain.failures.SendMessageFailure.AnonymousMessageNotAllowed;
+import tooplox.feedbackcollector.domain.failures.SendMessageFailure.InboxExpired;
+import tooplox.feedbackcollector.domain.failures.SendMessageFailure.SubmittingMessageToYourself;
 import tooplox.shared.authentication.AuthenticatedUser;
-import tooplox.shared.domain.*;
+import tooplox.shared.domain.InboxId;
+import tooplox.shared.domain.Success;
+import tooplox.shared.domain.UserSignature;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -25,13 +27,13 @@ public record Inbox(
         Owner owner
 ) {
 
-    public Either<SubmitFeedbackFailure, Success> acceptsMessage(@Nullable AuthenticatedUser messageAuthor, Clock clock) {
+    public Either<SendMessageFailure, Success> acceptsMessage(@Nullable AuthenticatedUser messageAuthor, Clock clock) {
         if (isInboxExpired(clock)) {
             return Either.left(new InboxExpired());
         } else if (isMessageAnonymous(messageAuthor) && !allowsAnonymousMessages) {
-            return Either.left(new AnonymousFeedbackNotAllowed());
+            return Either.left(new AnonymousMessageNotAllowed());
         } else if (isMessageSendByOwner(messageAuthor)) {
-            return Either.left(new SubmittingFeedbackToYourself());
+            return Either.left(new SubmittingMessageToYourself());
         } else {
             return Either.right(SUCCESS);
         }
@@ -49,7 +51,7 @@ public record Inbox(
         return author == null;
     }
 
-    public Either<ShowFeedbackFailure, Success> canBeReadBy(AuthenticatedUser authenticatedUser) {
+    public Either<ReadInboxFailure, Success> canBeReadBy(AuthenticatedUser authenticatedUser) {
         if (owner.isSameAs(authenticatedUser)) {
             return Either.right(SUCCESS);
         } else {

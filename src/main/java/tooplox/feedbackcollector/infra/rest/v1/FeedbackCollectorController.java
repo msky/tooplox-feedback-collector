@@ -6,9 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tooplox.feedbackcollector.domain.FeedbackCollectorFacade;
 import tooplox.feedbackcollector.domain.commands.CreateInboxCommand;
-import tooplox.feedbackcollector.domain.commands.SubmitFeedbackCommand;
-import tooplox.feedbackcollector.domain.queries.ShowFeedbackQuery;
-import tooplox.feedbackcollector.domain.queries.ShowInboxQuery;
+import tooplox.feedbackcollector.domain.commands.SendMessageCommand;
+import tooplox.feedbackcollector.domain.queries.ReadInboxQuery;
+import tooplox.feedbackcollector.domain.queries.ShowInboxInformationQuery;
 import tooplox.shared.domain.InboxId;
 
 import java.time.LocalDateTime;
@@ -18,7 +18,7 @@ import static org.springframework.http.ResponseEntity.ok;
 @RestController
 @RequestMapping("/api/v1/inboxes")
 @RequiredArgsConstructor
-public class FeedbackController {
+public class FeedbackCollectorController {
     private final FeedbackCollectorFacade feedbackCollectorFacade;
 
     @PostMapping()
@@ -31,8 +31,8 @@ public class FeedbackController {
     }
 
     @GetMapping()
-    public ResponseEntity<?> showInbox(@RequestParam(value = "id", required = false) String inboxId) {
-        return feedbackCollectorFacade.showInbox(new ShowInboxQuery(inboxId == null ? null : new InboxId(inboxId)))
+    public ResponseEntity<?> showInboxInformation(@RequestParam(value = "id", required = false) String inboxId) {
+        return feedbackCollectorFacade.showInboxInformation(new ShowInboxInformationQuery(inboxId == null ? null : new InboxId(inboxId)))
                 .fold(
                         this::getFailureResponseEntity,
                         ok()::body
@@ -40,11 +40,11 @@ public class FeedbackController {
     }
 
     @PostMapping("/{inboxId}/messages")
-    public ResponseEntity<?> submitFeedback(
+    public ResponseEntity<?> sendMessage(
             @PathVariable String inboxId,
-            @RequestBody SubmitFeedbackRequest request) {
-        return feedbackCollectorFacade.submitFeedback(
-                new SubmitFeedbackCommand(
+            @RequestBody SendMessageRequest request) {
+        return feedbackCollectorFacade.sendMessage(
+                new SendMessageCommand(
                         new InboxId(inboxId),
                         request.content()
                 )).fold(
@@ -54,8 +54,8 @@ public class FeedbackController {
     }
 
     @GetMapping("/{inboxId}/messages")
-    public ResponseEntity<?> showFeedback(@PathVariable(required = false) String inboxId) {
-        return feedbackCollectorFacade.showFeedback(new ShowFeedbackQuery(inboxId == null ? null : new InboxId(inboxId)))
+    public ResponseEntity<?> showMessage(@PathVariable(required = false) String inboxId) {
+        return feedbackCollectorFacade.readInbox(new ReadInboxQuery(inboxId == null ? null : new InboxId(inboxId)))
                 .fold(
                         this::getFailureResponseEntity,
                         ok()::body
@@ -74,13 +74,13 @@ public class FeedbackController {
         return HttpStatus.BAD_REQUEST;
     }
 
-    public record CreateInboxRequest(LocalDateTime expirationDate, boolean allowsAnonymousFeedback, String topic) {
+    public record CreateInboxRequest(LocalDateTime expirationDate, boolean allowsAnonymousMessage, String topic) {
         public CreateInboxCommand toCommand() {
-            return new CreateInboxCommand(expirationDate, allowsAnonymousFeedback, topic);
+            return new CreateInboxCommand(expirationDate, allowsAnonymousMessage, topic);
         }
     }
 
-    public record SubmitFeedbackRequest(String content) {
+    public record SendMessageRequest(String content) {
     }
 }
 

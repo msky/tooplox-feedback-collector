@@ -23,7 +23,7 @@ public class ShouldAllowToCreateInboxTest extends BaseFeedbackCollectorTest {
         userIsAuthenticated("Bob");
         val createInboxCommand = sampleCreateInboxCommand()
                 .expiringOn(randomFutureDate())
-                .allowingAnonymousFeedback(true)
+                .allowingAnonymousMessages(true)
                 .build();
 
         // when

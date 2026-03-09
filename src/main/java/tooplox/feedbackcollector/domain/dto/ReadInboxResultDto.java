@@ -5,7 +5,7 @@ import tooplox.shared.domain.MessageId;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record ShowFeedbackResultDto(
+public record ReadInboxResultDto(
         List<MessageDto> messages
 ) {
     public record MessageDto(MessageId id,

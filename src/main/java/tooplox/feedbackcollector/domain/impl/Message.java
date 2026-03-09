@@ -1,6 +1,6 @@
 package tooplox.feedbackcollector.domain.impl;
 
-import tooplox.feedbackcollector.domain.dto.ShowFeedbackResultDto.MessageDto;
+import tooplox.feedbackcollector.domain.dto.ReadInboxResultDto.MessageDto;
 import tooplox.shared.domain.InboxId;
 import tooplox.shared.domain.MessageId;
 import tooplox.shared.domain.UserSignature;

@@ -19,7 +19,7 @@ public class InboxFactory {
                 InboxId.generate(),
                 new Topic(command.topic()),
                 command.expirationDate(),
-                command.allowsAnonymousFeedback(),
+                command.allowsAnonymousMessages(),
                 new Owner(UserSignature.from(owner.userName(), owner.signatureHash()))
         );
     }

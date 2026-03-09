@@ -4,25 +4,26 @@ package tooplox.feedbackcollector.domain;
 import io.vavr.control.Either;
 import org.junit.jupiter.api.BeforeEach;
 import tooplox.feedbackcollector.domain.commands.CreateInboxCommand;
-import tooplox.feedbackcollector.domain.commands.SubmitFeedbackCommand;
+import tooplox.feedbackcollector.domain.commands.SendMessageCommand;
 import tooplox.feedbackcollector.domain.dto.CreateInboxResultDto;
-import tooplox.feedbackcollector.domain.dto.ShowFeedbackResultDto;
-import tooplox.feedbackcollector.domain.dto.ShowInboxResultDto;
+import tooplox.feedbackcollector.domain.dto.ReadInboxResultDto;
+import tooplox.feedbackcollector.domain.dto.ShowInboxInformationResultDto;
 import tooplox.feedbackcollector.domain.failures.CreateInboxFailure;
-import tooplox.feedbackcollector.domain.failures.ShowFeedbackFailure;
-import tooplox.feedbackcollector.domain.failures.ShowInboxFailure;
-import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure;
+import tooplox.feedbackcollector.domain.failures.ReadInboxFailure;
+import tooplox.feedbackcollector.domain.failures.SendMessageFailure;
+import tooplox.feedbackcollector.domain.failures.ShowInboxInformationFailure;
 import tooplox.feedbackcollector.domain.impl.InboxRepository;
 import tooplox.feedbackcollector.domain.impl.MessageRepository;
-import tooplox.feedbackcollector.domain.queries.ShowFeedbackQuery;
-import tooplox.feedbackcollector.domain.queries.ShowInboxQuery;
+import tooplox.feedbackcollector.domain.queries.ReadInboxQuery;
+import tooplox.feedbackcollector.domain.queries.ShowInboxInformationQuery;
 import tooplox.feedbackcollector.infra.db.embedded.InMemoryInboxRepository;
 import tooplox.feedbackcollector.infra.db.embedded.InMemoryMessageRepository;
 import tooplox.feedbackcollector.utils.CreateInboxCommandBuilder;
 import tooplox.feedbackcollector.utils.TestUtils;
 import tooplox.shared.authentication.AuthenticatedUser;
 import tooplox.shared.authentication.AuthenticatedUserProvider;
-import tooplox.shared.domain.*;
+import tooplox.shared.domain.InboxId;
+import tooplox.shared.domain.Success;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -54,16 +55,16 @@ abstract class BaseFeedbackCollectorTest {
         return feedbackCollectorFacade.createInbox(command);
     }
 
-    Either<SubmitFeedbackFailure, Success> submitFeedback(SubmitFeedbackCommand command) {
-        return feedbackCollectorFacade.submitFeedback(command);
+    Either<SendMessageFailure, Success> sendMessage(SendMessageCommand command) {
+        return feedbackCollectorFacade.sendMessage(command);
     }
 
-    Either<ShowInboxFailure, ShowInboxResultDto> showInbox(ShowInboxQuery query) {
-        return feedbackCollectorFacade.showInbox(query);
+    Either<ShowInboxInformationFailure, ShowInboxInformationResultDto> showInboxInformation(ShowInboxInformationQuery query) {
+        return feedbackCollectorFacade.showInboxInformation(query);
     }
 
-    Either<ShowFeedbackFailure, ShowFeedbackResultDto> showFeedback(InboxId inboxId) {
-        return feedbackCollectorFacade.showFeedback(new ShowFeedbackQuery(inboxId));
+    Either<ReadInboxFailure, ReadInboxResultDto> readInbox(InboxId inboxId) {
+        return feedbackCollectorFacade.readInbox(new ReadInboxQuery(inboxId));
     }
 
     private FeedbackCollectorFacade configureModule() {

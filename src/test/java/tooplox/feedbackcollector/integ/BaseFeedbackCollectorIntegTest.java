@@ -8,10 +8,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.ResultActions;
 import tools.jackson.databind.ObjectMapper;
 import tooplox.feedbackcollector.domain.commands.CreateInboxCommand;
-import tooplox.feedbackcollector.domain.commands.SubmitFeedbackCommand;
+import tooplox.feedbackcollector.domain.commands.SendMessageCommand;
 import tooplox.feedbackcollector.domain.dto.CreateInboxResultDto;
-import tooplox.feedbackcollector.domain.queries.ShowFeedbackQuery;
-import tooplox.feedbackcollector.domain.queries.ShowInboxQuery;
+import tooplox.feedbackcollector.domain.queries.ReadInboxQuery;
+import tooplox.feedbackcollector.domain.queries.ShowInboxInformationQuery;
 import tooplox.feedbackcollector.infra.rest.v1.RequestPerformer;
 import tooplox.feedbackcollector.utils.CreateInboxCommandBuilder;
 import tooplox.feedbackcollector.utils.TestUtils;
@@ -55,16 +55,16 @@ abstract class BaseFeedbackCollectorIntegTest {
                 CreateInboxResultDto.class).inboxId();
     }
 
-    ResultActions submitFeedback(SubmitFeedbackCommand command) {
-        return performer.submitFeedback(command, currentCredentials);
+    ResultActions sendMessage(SendMessageCommand command) {
+        return performer.sendMessage(command, currentCredentials);
     }
 
-    ResultActions showInbox(ShowInboxQuery query) {
+    ResultActions showInboxInformation(ShowInboxInformationQuery query) {
         return performer.showInbox(query, currentCredentials);
     }
 
-    ResultActions showFeedback(InboxId inboxId) {
-        return performer.showFeedback(new ShowFeedbackQuery(inboxId), currentCredentials);
+    ResultActions showMessage(InboxId inboxId) {
+        return performer.showMessage(new ReadInboxQuery(inboxId), currentCredentials);
     }
 
     void succeeded(ResultActions resultActions) throws Exception {

@@ -2,22 +2,22 @@ package tooplox.feedbackcollector.domain;
 
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import tooplox.feedbackcollector.domain.dto.ShowFeedbackResultDto;
-import tooplox.feedbackcollector.domain.failures.ShowFeedbackFailure.InboxNotFound;
-import tooplox.feedbackcollector.domain.failures.ShowFeedbackFailure.NotAuthorizedToReadFromInbox;
+import tooplox.feedbackcollector.domain.dto.ReadInboxResultDto;
+import tooplox.feedbackcollector.domain.failures.ReadInboxFailure.InboxNotFound;
+import tooplox.feedbackcollector.domain.failures.ReadInboxFailure.NotAuthorizedToReadFromInbox;
 import tooplox.shared.domain.InboxId;
 
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static tooplox.feedbackcollector.utils.AuthenticatedUserBuilder.authenticatedUser;
-import static tooplox.feedbackcollector.utils.SubmitFeedbackCommandBuilder.sampleSubmitFeedbackCommand;
+import static tooplox.feedbackcollector.utils.SendMessageCommandBuilder.sampleSendMessageCommand;
 import static tooplox.feedbackcollector.utils.TestUtils.someRandomDateTime;
 
 public class ShouldAllowToSubmitAndShowFeedbackTest extends BaseFeedbackCollectorTest {
 
     @Test
-    void shouldShowSubmittedFeedback() {
+    void shouldShowSubmittedMessage() {
         // given
         userIsAuthenticated("Bob");
         val inboxId = createInbox(sampleCreateInboxCommand().build()).get().inboxId();
@@ -28,42 +28,42 @@ public class ShouldAllowToSubmitAndShowFeedbackTest extends BaseFeedbackCollecto
         val messageSubmissionDate = someRandomDateTime();
         timeIs(messageSubmissionDate);
 
-        val submitFeedbackCommand = sampleSubmitFeedbackCommand().toInbox(inboxId).build();
-        submitFeedback(submitFeedbackCommand);
+        val SendMessageCommand = sampleSendMessageCommand().toInbox(inboxId).build();
+        sendMessage(SendMessageCommand);
 
         userIsAuthenticated("Bob");
 
         // then
-        val feedback = showFeedback(inboxId).get();
+        val feedback = readInbox(inboxId).get();
         assertThat(feedback.messages()).hasSize(1);
 
         val message = feedback.messages().getFirst();
         assertThat(message.id()).isNotNull();
-        assertThat(message.content()).isEqualTo(submitFeedbackCommand.content());
+        assertThat(message.content()).isEqualTo(SendMessageCommand.content());
         assertThat(message.authorSignature()).isEqualTo("Alice#hash");
         assertThat(message.submittedAt()).isEqualTo(messageSubmissionDate);
     }
 
     @Test
-    void shouldNotShowTheAuthorOfAnonymousFeedback() {
+    void shouldNotShowTheAuthorOfAnonymousMessage() {
         // given
         userIsAuthenticated("Bob");
         val inboxId = createInbox(sampleCreateInboxCommand()
-                .allowingAnonymousFeedback(true)
+                .allowingAnonymousMessages(true)
                 .build()).get().inboxId();
 
 
         // when
         userIsAuthenticated("Alice");
-        submitFeedback(sampleSubmitFeedbackCommand().toInbox(inboxId).build());
+        sendMessage(sampleSendMessageCommand().toInbox(inboxId).build());
 
         thereIsNoAuthenticatedUser();
-        submitFeedback(sampleSubmitFeedbackCommand().toInbox(inboxId).build());
+        sendMessage(sampleSendMessageCommand().toInbox(inboxId).build());
 
         userIsAuthenticated("Bob");
 
         // then
-        val feedback = showFeedback(inboxId).get();
+        val feedback = readInbox(inboxId).get();
         assertThat(feedback.messages()).hasSize(2);
 
         thereIsAnonymousMessageIn(feedback.messages());
@@ -71,56 +71,56 @@ public class ShouldAllowToSubmitAndShowFeedbackTest extends BaseFeedbackCollecto
     }
 
     @Test
-    void shouldOnlyShowFeedbackForTheGivenInbox() {
+    void shouldOnlyShowMessageForTheGivenInbox() {
         // given
         userIsAuthenticated("Bob");
         val firstInboxId = createInbox(sampleCreateInboxCommand().build()).get().inboxId();
         val secondInboxId = createInbox(sampleCreateInboxCommand().build()).get().inboxId();
 
         userIsAuthenticated("Alice");
-        submitFeedback(sampleSubmitFeedbackCommand().toInbox(firstInboxId).build());
+        sendMessage(sampleSendMessageCommand().toInbox(firstInboxId).build());
 
         userIsAuthenticated("Mickey Mouse");
-        submitFeedback(sampleSubmitFeedbackCommand().toInbox(secondInboxId).build());
+        sendMessage(sampleSendMessageCommand().toInbox(secondInboxId).build());
 
         userIsAuthenticated("Bob");
 
         // when
-        val firstInboxFeedback = showFeedback(firstInboxId).get();
-        val secondInboxFeedback = showFeedback(secondInboxId).get();
+        val firstInboxMessage = readInbox(firstInboxId).get();
+        val secondInboxMessage = readInbox(secondInboxId).get();
 
         // then
-        assertThat(firstInboxFeedback.messages()).hasSize(1);
-        assertThat(secondInboxFeedback.messages()).hasSize(1);
+        assertThat(firstInboxMessage.messages()).hasSize(1);
+        assertThat(secondInboxMessage.messages()).hasSize(1);
 
-        thereIsMessageFrom("Alice", firstInboxFeedback.messages());
-        thereIsMessageFrom("Mickey Mouse", secondInboxFeedback.messages());
+        thereIsMessageFrom("Alice", firstInboxMessage.messages());
+        thereIsMessageFrom("Mickey Mouse", secondInboxMessage.messages());
     }
 
     @Test
-    void shouldOnlyShowFeedbackToTheOwnerOfTheInbox() {
+    void shouldOnlyShowMessageToTheOwnerOfTheInbox() {
         // given
         userIsAuthenticated("Bob");
         val inboxId = createInbox(sampleCreateInboxCommand().build()).get().inboxId();
 
         userIsAuthenticated("Alice");
-        submitFeedback(sampleSubmitFeedbackCommand().toInbox(inboxId).build());
+        sendMessage(sampleSendMessageCommand().toInbox(inboxId).build());
 
         // when
-        val result = showFeedback(inboxId);
+        val result = readInbox(inboxId);
 
         // then
         failedBecauseOf(result, NotAuthorizedToReadFromInbox.class);
     }
 
     @Test
-    void shouldFailWhenShowingFeedbackForNonExistingOrMissingInbox() {
+    void shouldFailWhenShowingMessageForNonExistingOrMissingInbox() {
         // given
         userIsAuthenticated("Bob");
 
         // when
-        val resultForNonExistingInbox = showFeedback(InboxId.generate());
-        val resultForMissingInbox = showFeedback(null);
+        val resultForNonExistingInbox = readInbox(InboxId.generate());
+        val resultForMissingInbox = readInbox(null);
 
         // then
         failedBecauseOf(resultForNonExistingInbox, InboxNotFound.class);
@@ -129,15 +129,15 @@ public class ShouldAllowToSubmitAndShowFeedbackTest extends BaseFeedbackCollecto
 
     // TODO
 //    @Test
-//    void shouldShowRequestedPageOfFeedbackMessages() {
+//    void shouldShowRequestedPageOfMessageMessages() {
 //    }
 
 
-    private void thereIsAnonymousMessageIn(List<ShowFeedbackResultDto.MessageDto> messages) {
+    private void thereIsAnonymousMessageIn(List<ReadInboxResultDto.MessageDto> messages) {
         assertThat(messages).anyMatch(m -> m.authorSignature() == null);
     }
 
-    private void thereIsMessageFrom(String authorUserName, List<ShowFeedbackResultDto.MessageDto> messages) {
+    private void thereIsMessageFrom(String authorUserName, List<ReadInboxResultDto.MessageDto> messages) {
         assertThat(messages).anyMatch(m -> m.authorSignature() != null && m.authorSignature().startsWith(authorUserName + "#"));
     }
 }

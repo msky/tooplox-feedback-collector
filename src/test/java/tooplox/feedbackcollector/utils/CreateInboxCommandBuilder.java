@@ -10,11 +10,11 @@ import static tooplox.feedbackcollector.utils.TestUtils.randomFutureDate;
 public class CreateInboxCommandBuilder {
     Clock clock = Clock.systemUTC();
     LocalDateTime expiringOn = randomFutureDate(clock);
-    boolean allowsAnonymousFeedback = true;
+    boolean allowsAnonymousMessages = true;
     String topic = "sample topic";
 
     public CreateInboxCommand build() {
-        return new CreateInboxCommand(expiringOn, allowsAnonymousFeedback, topic);
+        return new CreateInboxCommand(expiringOn, allowsAnonymousMessages, topic);
     }
 
     public static CreateInboxCommandBuilder sampleCreateInboxCommand(Clock clock) {
@@ -26,8 +26,8 @@ public class CreateInboxCommandBuilder {
         return this;
     }
 
-    public CreateInboxCommandBuilder allowingAnonymousFeedback(boolean allowsAnonymousFeedback) {
-        this.allowsAnonymousFeedback = allowsAnonymousFeedback;
+    public CreateInboxCommandBuilder allowingAnonymousMessages(boolean allowsAnonymousFeedback) {
+        this.allowsAnonymousMessages = allowsAnonymousFeedback;
         return this;
     }
 

@@ -2,14 +2,14 @@ package tooplox.feedbackcollector.domain;
 
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import tooplox.feedbackcollector.domain.failures.ShowInboxFailure.InboxNotFound;
-import tooplox.feedbackcollector.domain.queries.ShowInboxQuery;
+import tooplox.feedbackcollector.domain.failures.ShowInboxInformationFailure.InboxNotFound;
+import tooplox.feedbackcollector.domain.queries.ShowInboxInformationQuery;
 import tooplox.shared.domain.InboxId;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static tooplox.feedbackcollector.utils.AuthenticatedUserBuilder.authenticatedUser;
 
-public class ShouldShowInboxTest extends BaseFeedbackCollectorTest {
+public class ShouldShowInboxInformationTest extends BaseFeedbackCollectorTest {
 
     @Test
     void shouldShowInboxToTheOwner() {
@@ -22,7 +22,7 @@ public class ShouldShowInboxTest extends BaseFeedbackCollectorTest {
                 .build()).get().inboxId();
 
         // when
-        val result = showInbox(new ShowInboxQuery(inboxId)).get();
+        val result = showInboxInformation(new ShowInboxInformationQuery(inboxId)).get();
 
         // then
         assertThat(result.id()).isEqualTo(inboxId);
@@ -44,7 +44,7 @@ public class ShouldShowInboxTest extends BaseFeedbackCollectorTest {
         userIsAuthenticated("Alice");
 
         // when
-        val result = showInbox(new ShowInboxQuery(inboxId)).get();
+        val result = showInboxInformation(new ShowInboxInformationQuery(inboxId)).get();
 
         // then
         assertThat(result.id()).isEqualTo(inboxId);
@@ -56,13 +56,13 @@ public class ShouldShowInboxTest extends BaseFeedbackCollectorTest {
     @Test
     void shouldFailWhenShowingNonExistingInbox() {
         // when
-        val notExistingInboxResult = showInbox(new ShowInboxQuery(InboxId.generate()));
+        val notExistingInboxResult = showInboxInformation(new ShowInboxInformationQuery(InboxId.generate()));
 
         // then
         failedBecauseOf(notExistingInboxResult, InboxNotFound.class);
 
         // when
-        val missingInboxResult = showInbox(new ShowInboxQuery(null));
+        val missingInboxResult = showInboxInformation(new ShowInboxInformationQuery(null));
 
         // then
         failedBecauseOf(missingInboxResult, InboxNotFound.class);

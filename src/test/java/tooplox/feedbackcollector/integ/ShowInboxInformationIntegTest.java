@@ -3,7 +3,7 @@ package tooplox.feedbackcollector.integ;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 import tooplox.feedbackcollector.domain.dto.CreateInboxResultDto;
-import tooplox.feedbackcollector.domain.queries.ShowInboxQuery;
+import tooplox.feedbackcollector.domain.queries.ShowInboxInformationQuery;
 
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 import static org.hamcrest.Matchers.startsWith;
@@ -11,22 +11,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static tooplox.shared.domain.UserSignature.SEPARATOR;
 
-class ShowInboxIntegTest extends BaseFeedbackCollectorIntegTest {
+class ShowInboxInformationIntegTest extends BaseFeedbackCollectorIntegTest {
 
     @Test
-    void shouldShowInboxToTheOwner() throws Exception {
+    void shouldShowInboxInformationToTheOwner() throws Exception {
         // given
         userIsAuthenticated("Bob");
         val inboxExpirationDate = randomFutureDate();
         val inboxId = deserialize(createInbox(sampleCreateInboxCommand()
                 .expiringOn(inboxExpirationDate)
-                .allowingAnonymousFeedback(true)
+                .allowingAnonymousMessages(true)
                 .withTopic("my topic")
                 .build())
                 .andReturn().getResponse().getContentAsString(), CreateInboxResultDto.class).inboxId();
 
         // when
-        val result = showInbox(new ShowInboxQuery(inboxId));
+        val result = showInboxInformation(new ShowInboxInformationQuery(inboxId));
 
         // then
         result.andExpect(status().isOk())

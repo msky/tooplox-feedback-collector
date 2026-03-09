@@ -14,7 +14,7 @@ class CreateInboxIntegTest extends BaseFeedbackCollectorIntegTest {
         userIsAuthenticated("Bob");
         val createInboxCommand = sampleCreateInboxCommand()
                 .expiringOn(randomFutureDate())
-                .allowingAnonymousFeedback(true)
+                .allowingAnonymousMessages(true)
                 .build();
 
         // when

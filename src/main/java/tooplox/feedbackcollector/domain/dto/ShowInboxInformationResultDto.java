@@ -4,7 +4,7 @@ import tooplox.shared.domain.InboxId;
 
 import java.time.LocalDateTime;
 
-public record ShowInboxResultDto(
+public record ShowInboxInformationResultDto(
         InboxId id,
         String topic,
         String ownerSignature,
