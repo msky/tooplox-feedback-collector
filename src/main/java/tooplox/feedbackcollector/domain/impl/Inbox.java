@@ -58,6 +58,10 @@ public record Inbox(
         }
     }
 
+    public String ownerUserName() {
+        return owner.userName().value();
+    }
+
     record Owner(UserName userName) {
         public boolean isSameAs(AuthenticatedUser user) {
             return user != null && userName.equals(user.userName());

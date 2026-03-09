@@ -64,7 +64,15 @@ public class FeedbackCollectorFacade {
     }
 
     public Either<ShowInboxFailure, ShowInboxResultDto> showInbox(ShowInboxQuery query) {
-        return null;
+        log.info("Showing inbox [ inboxId = {} ]", query.inboxId());
+
+        return findInboxBy(query.inboxId(), (ShowInboxFailure) new ShowInboxFailure.InboxNotFound())
+                .map(inbox -> new ShowInboxResultDto(
+                        inbox.id(),
+                        inbox.ownerUserName(),
+                        inbox.expiresOn()))
+                .peekLeft(ShowInboxFailure::log)
+                .peek(result -> log.info("Inbox retrieved successfully [ inboxId = {} ]", result.id()));
     }
 
     public Either<ShowFeedbackFailure, ShowFeedbackResultDto> showFeedback(ShowFeedbackQuery query) {
