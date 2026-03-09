@@ -28,6 +28,6 @@ public class MessageFactory {
 
     private @Nullable Author getAuthor() {
         val user = authenticatedUserProvider.authenticatedUser();
-        return user == null ? null : new Author(user.userName());
+        return user == null ? null : new Author(user.signature());
     }
 }

@@ -10,6 +10,7 @@ import tooplox.shared.domain.InboxId;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static tooplox.feedbackcollector.utils.AuthenticatedUserBuilder.authenticatedUser;
 import static tooplox.feedbackcollector.utils.SubmitFeedbackCommandBuilder.sampleSubmitFeedbackCommand;
 import static tooplox.feedbackcollector.utils.TestUtils.someRandomDateTime;
 
@@ -18,11 +19,10 @@ public class ShouldAllowToSubmitAndShowFeedbackTest extends BaseFeedbackCollecto
     @Test
     void shouldShowSubmittedFeedback() {
         // given
-        // TODO assert that signature is shown instead of username
         userIsAuthenticated("Bob");
         val inboxId = createInbox(sampleCreateInboxCommand().build()).get().inboxId();
 
-        userIsAuthenticated("Alice");
+        userIsAuthenticated(authenticatedUser().withSignature("Alice#hash").build());
 
         // when
         val messageSubmissionDate = someRandomDateTime();
@@ -40,7 +40,7 @@ public class ShouldAllowToSubmitAndShowFeedbackTest extends BaseFeedbackCollecto
         val message = feedback.messages().getFirst();
         assertThat(message.id()).isNotNull();
         assertThat(message.content()).isEqualTo(submitFeedbackCommand.content());
-        assertThat(message.author()).isEqualTo("Alice");
+        assertThat(message.authorSignature()).isEqualTo("Alice#hash");
         assertThat(message.submittedAt()).isEqualTo(messageSubmissionDate);
     }
 
@@ -134,10 +134,10 @@ public class ShouldAllowToSubmitAndShowFeedbackTest extends BaseFeedbackCollecto
 
 
     private void thereIsAnonymousMessageIn(List<ShowFeedbackResultDto.MessageDto> messages) {
-        assertThat(messages).anyMatch(m -> m.author() == null);
+        assertThat(messages).anyMatch(m -> m.authorSignature() == null);
     }
 
-    private void thereIsMessageFrom(String author, List<ShowFeedbackResultDto.MessageDto> messages) {
-        assertThat(messages).anyMatch(m -> author.equals(m.author()));
+    private void thereIsMessageFrom(String authorUserName, List<ShowFeedbackResultDto.MessageDto> messages) {
+        assertThat(messages).anyMatch(m -> m.authorSignature() != null && m.authorSignature().startsWith(authorUserName + "#"));
     }
 }

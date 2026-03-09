@@ -31,6 +31,7 @@ import static org.assertj.vavr.api.VavrAssertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static tooplox.feedbackcollector.utils.AuthenticatedUserBuilder.authenticatedUser;
 
 abstract class BaseFeedbackCollectorTest {
     static final int MAX_FEEDBACK_CONTENT_LENGTH = 50;
@@ -95,8 +96,12 @@ abstract class BaseFeedbackCollectorTest {
     }
 
     void userIsAuthenticated(String userName) {
+        userIsAuthenticated(authenticatedUser().withName(userName).build());
+    }
+
+    void userIsAuthenticated(AuthenticatedUser authenticatedUser) {
         when(authenticatedUserProvider.authenticatedUser()).thenReturn(
-                new AuthenticatedUser(new UserName(userName))
+                authenticatedUser
         );
     }
 

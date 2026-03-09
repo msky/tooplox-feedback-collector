@@ -8,10 +8,7 @@ import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.AnonymousFeedbackNotAllowed;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.InboxExpired;
 import tooplox.feedbackcollector.domain.failures.SubmitFeedbackFailure.SubmittingFeedbackToYourself;
-import tooplox.shared.domain.AuthenticatedUser;
-import tooplox.shared.domain.InboxId;
-import tooplox.shared.domain.Success;
-import tooplox.shared.domain.UserName;
+import tooplox.shared.domain.*;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -39,7 +36,7 @@ public record Inbox(
     }
 
     private boolean isMessageSendByOwner(AuthenticatedUser messageAuthor) {
-        return messageAuthor != null && owner.isSameAs(messageAuthor);
+        return owner.isSameAs(messageAuthor);
     }
 
     private boolean isInboxExpired(Clock clock) {
@@ -58,13 +55,13 @@ public record Inbox(
         }
     }
 
-    public String ownerUserName() {
-        return owner.userName().value();
+    public UserSignature ownerSignature() {
+        return owner.signature();
     }
 
-    record Owner(UserName userName) {
+    record Owner(UserSignature signature) {
         public boolean isSameAs(AuthenticatedUser user) {
-            return user != null && userName.equals(user.userName());
+            return user != null && signature.equals(user.signature());
         }
     }
 }

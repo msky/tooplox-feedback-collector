@@ -8,8 +8,9 @@ import java.util.List;
 public record ShowFeedbackResultDto(
         List<MessageDto> messages
 ) {
-    // TODO include paging info
-    public record MessageDto(MessageId id, String content, String author,
+    public record MessageDto(MessageId id,
+                             String content,
+                             String authorSignature,
                              LocalDateTime submittedAt) {
     }
 }

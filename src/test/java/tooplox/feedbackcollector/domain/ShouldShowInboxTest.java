@@ -7,13 +7,14 @@ import tooplox.feedbackcollector.domain.queries.ShowInboxQuery;
 import tooplox.shared.domain.InboxId;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static tooplox.feedbackcollector.utils.AuthenticatedUserBuilder.authenticatedUser;
 
 public class ShouldShowInboxTest extends BaseFeedbackCollectorTest {
 
     @Test
     void shouldShowInboxToTheOwner() {
         // given
-        userIsAuthenticated("Bob");
+        userIsAuthenticated(authenticatedUser().withSignature("Bob#hash").build());
         val inboxExpirationDate = randomFutureDate();
         val inboxId = createInbox(sampleCreateInboxCommand().expiringOn(inboxExpirationDate).build()).get().inboxId();
 
@@ -23,13 +24,13 @@ public class ShouldShowInboxTest extends BaseFeedbackCollectorTest {
         // then
         assertThat(result.id()).isEqualTo(inboxId);
         assertThat(result.expiringOn()).isEqualTo(inboxExpirationDate);
-        assertThat(result.ownerSignature()).isEqualTo("Bob");
+        assertThat(result.ownerSignature()).isEqualTo("Bob#hash");
     }
 
     @Test
     void shouldShowInboxCreatedBySomeoneElse() {
         // given
-        userIsAuthenticated("Bob");
+        userIsAuthenticated(authenticatedUser().withSignature("Bob#hash").build());
         val expirationDate = randomFutureDate();
         val inboxId = createInbox(sampleCreateInboxCommand().expiringOn(expirationDate).build()).get().inboxId();
 
@@ -41,7 +42,7 @@ public class ShouldShowInboxTest extends BaseFeedbackCollectorTest {
         // then
         assertThat(result.id()).isEqualTo(inboxId);
         assertThat(result.expiringOn()).isEqualTo(expirationDate);
-        assertThat(result.ownerSignature()).isEqualTo("Bob");
+        assertThat(result.ownerSignature()).isEqualTo("Bob#hash");
     }
 
     @Test

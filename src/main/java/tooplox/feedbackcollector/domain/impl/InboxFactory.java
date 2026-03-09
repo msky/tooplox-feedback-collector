@@ -6,6 +6,7 @@ import tooplox.feedbackcollector.domain.impl.Inbox.Owner;
 import tooplox.shared.domain.AuthenticatedUser;
 import tooplox.shared.domain.AuthenticatedUserProvider;
 import tooplox.shared.domain.InboxId;
+import tooplox.shared.domain.UserSignature;
 
 
 @RequiredArgsConstructor
@@ -18,7 +19,7 @@ public class InboxFactory {
                 InboxId.generate(),
                 command.expirationDate(),
                 command.allowsAnonymousFeedback(),
-                new Owner(owner.userName())
+                new Owner(UserSignature.from(owner.userName(), owner.signatureHash()))
         );
     }
 }
