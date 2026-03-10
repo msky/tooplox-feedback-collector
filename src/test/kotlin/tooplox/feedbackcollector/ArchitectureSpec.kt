@@ -5,20 +5,18 @@ import com.tngtech.archunit.base.DescribedPredicate.allElements
 import com.tngtech.archunit.base.DescribedPredicate.not
 import com.tngtech.archunit.core.domain.JavaAccess
 import com.tngtech.archunit.core.domain.JavaClass
-import com.tngtech.archunit.core.domain.JavaClass.Predicates.assignableTo
-import com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage
-import com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAnyPackage
-import com.tngtech.archunit.core.domain.JavaClass.Predicates.simpleNameEndingWith
+import com.tngtech.archunit.core.domain.JavaClass.Predicates.*
+import com.tngtech.archunit.core.importer.ImportOption.DoNotIncludeTests
 import com.tngtech.archunit.junit.AnalyzeClasses
 import com.tngtech.archunit.junit.ArchTest
-import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes
-import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods
-import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses
+import com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*
 import io.vavr.control.Either
 import java.util.*
-import kotlin.jvm.java
 
-@AnalyzeClasses(packages = ["tooplox.feedbackcollector"])
+@AnalyzeClasses(
+    importOptions = [DoNotIncludeTests::class],
+    packages = ["tooplox.feedbackcollector"]
+)
 class ArchitectureSpec {
 
     @ArchTest
